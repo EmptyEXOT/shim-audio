@@ -11,17 +11,18 @@
   "description": "",
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
-    "webpack": "^5.95.0",
-    "autoprefixer": "^10.4.20",
-    "clsx": "^2.1.1",
     "@eslint/js": "^9.13.0",
     "@types/eslint__js": "^8.42.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/react-router-dom": "^5.3.3",
     "@types/webpack": "^5.28.5",
+    "autoprefixer": "^10.4.20",
+    "clsx": "^2.1.1",
     "css-loader": "^6.10.0",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
@@ -42,6 +43,7 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.11.0",
     "typescript-plugin-css-modules": "^5.1.0",
+    "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"
   }

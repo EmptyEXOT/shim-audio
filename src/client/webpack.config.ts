@@ -44,11 +44,13 @@ const webpackConfig = (): webpack.Configuration => {
     },
     resolve: {
       extensions: ['.tsx', '.ts', '.js'],
+      alias: { '@': path.resolve(__dirname, 'src') },
     },
     devServer: {
       hot: true,
       open: true,
       port: 3000,
+      historyApiFallback: true,
     },
     target,
     plugins: [

@@ -1,14 +1,17 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import cls from './App.module.css';
 import clsx from 'clsx';
 import '../index';
+import { Outlet } from 'react-router-dom';
 
-export interface AppProps {}
+export interface AppProps {
+  children?: ReactNode;
+}
 
-export const App: FC<AppProps> = () => {
+export const App: FC<AppProps> = (props) => {
   return (
     <div className={clsx(cls.app)}>
-      <h1 className='text-4xl text-white'>Test</h1>
+      <Outlet />
     </div>
   );
 };
