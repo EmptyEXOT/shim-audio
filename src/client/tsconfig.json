@@ -12,9 +12,15 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
-  "include": ["src/**/*.tsx", "webpack.config.ts"],
+  "include": [
+    "src/**/*.tsx",
+    "./src/**/*.ts",
+    "./src/**/*.svg",
+    "webpack.config.ts"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

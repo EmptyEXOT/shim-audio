@@ -2,7 +2,6 @@ import webpack from 'webpack';
 import path from 'path';
 import { Configuration as WebpackConfig } from 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 export let _: WebpackConfig;
 
@@ -24,13 +23,8 @@ const webpackConfig = (): webpack.Configuration => {
     module: {
       rules: [
         {
-          test: /\.(s[ac]|c)ss$/i,
-          use: [
-            MiniCssExtractPlugin.loader,
-            'css-loader',
-            'postcss-loader',
-            'sass-loader',
-          ],
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader', 'postcss-loader'],
         },
         {
           test: /\.(png|jpe?g|gif|svg|webp|ico)$/i,
