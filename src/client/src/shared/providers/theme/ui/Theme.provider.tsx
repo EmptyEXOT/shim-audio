@@ -1,7 +1,7 @@
 import { FC, ReactNode, useEffect, useReducer } from 'react';
-import { ReduceThemeContext } from '../ReduceTheme.contex';
-import { ThemeContext } from '../Theme.context';
-import { themeReducer } from '../Theme.reducer';
+import { ReduceThemeContext } from '../context/ReduceTheme.contex';
+import { ThemeContext } from '../context/Theme.context';
+import { themeReducer } from '../reducer/Theme.reducer';
 import { ETheme } from '../types/Theme.enum';
 import { EThemeAction } from '../types/ThemeAction.enum';
 

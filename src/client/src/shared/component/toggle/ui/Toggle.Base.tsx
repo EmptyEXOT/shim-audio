@@ -10,7 +10,7 @@ export interface ToggleBaseProps {
   }>;
 }
 
-export const Base: FC<ToggleBaseProps> = (props) => {
+export const ToggleBase: FC<ToggleBaseProps> = (props) => {
   const { id, isActive } = useToggle();
 
   return (

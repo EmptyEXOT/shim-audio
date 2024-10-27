@@ -1,7 +1,7 @@
 import { FC, memo, NamedExoticComponent, ReactNode, useId } from 'react';
 import { ToggleContext } from '../context/Toggle.context';
-import { Base } from './Toggle.Base';
-import { Handler } from './Toggle.Handler';
+import { ToggleBase } from './Toggle.Base';
+import { ToggleHandler } from './Toggle.Handler';
 
 export interface ToggleProps {
   name: string;
@@ -11,8 +11,8 @@ export interface ToggleProps {
 }
 
 type MemoizedToggleCompose = FC<ToggleProps> & {
-  Base: typeof Base;
-  Handler: typeof Handler;
+  Base: typeof ToggleBase;
+  Handler: typeof ToggleHandler;
 };
 
 const BaseToggle: FC<ToggleProps> = ({
@@ -41,7 +41,7 @@ const BaseToggle: FC<ToggleProps> = ({
 const MemoizedToggle = memo(BaseToggle) as NamedExoticComponent<ToggleProps> &
   MemoizedToggleCompose;
 
-MemoizedToggle.Base = Base;
-MemoizedToggle.Handler = Handler;
+MemoizedToggle.Base = ToggleBase;
+MemoizedToggle.Handler = ToggleHandler;
 
 export const Toggle = MemoizedToggle;

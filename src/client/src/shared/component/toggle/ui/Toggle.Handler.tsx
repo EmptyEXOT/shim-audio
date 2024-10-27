@@ -9,7 +9,7 @@ export interface ToggleHandlerProps {
   }>;
 }
 
-export const Handler: FC<ToggleHandlerProps> = (props) => {
+export const ToggleHandler: FC<ToggleHandlerProps> = (props) => {
   const { isActive } = useToggle();
 
   return (
