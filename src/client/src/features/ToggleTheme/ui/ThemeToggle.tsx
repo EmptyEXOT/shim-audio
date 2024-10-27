@@ -3,13 +3,13 @@ import { useTheme } from '@/shared/providers/theme/hooks/useTheme';
 import { useThemeDispatch } from '@/shared/providers/theme/hooks/useThemeDispatch';
 import { ETheme } from '@/shared/providers/theme/types/Theme.enum';
 import { EThemeAction } from '@/shared/providers/theme/types/ThemeAction.enum';
-import { FC, useCallback } from 'react';
+import { FC, memo, useCallback } from 'react';
 
 export interface ThemeToggleProps {
   name: string;
 }
 
-export const ThemeToggle: FC<ThemeToggleProps> = (props) => {
+export const ThemeToggle: FC<ThemeToggleProps> = memo((props) => {
   const dispatchTheme = useThemeDispatch();
   const theme = useTheme();
 
@@ -28,4 +28,4 @@ export const ThemeToggle: FC<ThemeToggleProps> = (props) => {
       </Toggle.Base>
     </Toggle>
   );
-};
+});
