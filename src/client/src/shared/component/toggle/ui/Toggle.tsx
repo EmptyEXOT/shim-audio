@@ -1,36 +1,47 @@
-import { FC, memo, useId, useState } from 'react';
-import { twMerge } from 'tailwind-merge';
+import { FC, memo, NamedExoticComponent, ReactNode, useId } from 'react';
+import { ToggleContext } from '../context/Toggle.context';
+import { Base } from './Toggle.Base';
+import { Handler } from './Toggle.Handler';
 
 export interface ToggleProps {
   name: string;
   isActive: boolean;
   onToggle: () => void;
+  children: ReactNode;
 }
 
-export const Toggle: FC<ToggleProps> = memo((props) => {
+type MemoizedToggleCompose = FC<ToggleProps> & {
+  Base: typeof Base;
+  Handler: typeof Handler;
+};
+
+const BaseToggle: FC<ToggleProps> = ({
+  children,
+  isActive,
+  name,
+  onToggle,
+}) => {
   const id = useId();
 
   return (
-    <>
+    <ToggleContext.Provider value={{ id, isActive, onToggle }}>
       <input
         type='checkbox'
-        name={props.name}
+        name={name}
         id={id}
         className='hidden'
-        checked={props.isActive}
-        onChange={props.onToggle}
+        checked={isActive}
+        onChange={onToggle}
       />
-      <label
-        htmlFor={id}
-        className={twMerge(
-          'cursor-pointer flex items-center justify-between w-12 h-6 bg-gray-300 rounded-full p-1 transition-transform duration-300 ease-in-out',
-          props.isActive && 'bg-blue-500'
-        )}
-      >
-        <span
-          className={`w-4 h-4 bg-white rounded-full shadow-md transform transition duration-300 ease-in-out ${props.isActive ? 'translate-x-6' : 'translate-x-0'}`}
-        />
-      </label>
-    </>
+      {children}
+    </ToggleContext.Provider>
   );
-});
+};
+
+const MemoizedToggle = memo(BaseToggle) as NamedExoticComponent<ToggleProps> &
+  MemoizedToggleCompose;
+
+MemoizedToggle.Base = Base;
+MemoizedToggle.Handler = Handler;
+
+export const Toggle = MemoizedToggle;
