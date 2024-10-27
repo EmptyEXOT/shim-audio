@@ -3,6 +3,7 @@ import cls from './App.module.css';
 import clsx from 'clsx';
 import '../index';
 import { Outlet } from 'react-router-dom';
+import { ThemeProvider } from '@/shared/providers/theme/ui/Theme.provider';
 
 export interface AppProps {
   children?: ReactNode;
@@ -10,8 +11,11 @@ export interface AppProps {
 
 export const App: FC<AppProps> = (props) => {
   return (
-    <div className={clsx(cls.app)}>
-      <Outlet />
-    </div>
+    <ThemeProvider>
+      <div>
+        {props.children}
+        <Outlet />
+      </div>
+    </ThemeProvider>
   );
 };
