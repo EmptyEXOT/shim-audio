@@ -1,3 +1,4 @@
+import { Skeleton } from '@/shared/component/skeleton';
 import { FC } from 'react';
 
 export interface HomePageProps {}

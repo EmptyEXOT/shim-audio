@@ -3,6 +3,7 @@ import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
+import { Skeleton } from '../component/skeleton';
 
 export const router = createBrowserRouter([
   {
@@ -12,7 +13,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <Suspense fallback='loading'>
+          <Suspense fallback={<Skeleton.Box height={'48px'} width={'100%'} />}>
             <HomePage />
           </Suspense>
         ),
