@@ -57,6 +57,7 @@ const webpackConfig = (): webpack.Configuration => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'public', 'index.html'),
       }),
+      new webpack.ProgressPlugin(),
     ],
   };
 };
