@@ -1,28 +1,27 @@
 import { Button } from '@/shared/component/button/ui/Button';
 import { FC, useState } from 'react';
 import { useLoginMutation } from '../api/auth.api';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 export interface LoginFormProps {}
 
-interface FormState {
+interface FormInputs {
   email: string;
   password: string;
 }
 
 export const LoginForm: FC<LoginFormProps> = () => {
-  const [formState, setFormState] = useState<FormState>({
+  const [formState, setFormState] = useState<FormInputs>({
     email: '',
     password: '',
   });
-
-  const [login, { isLoading }] = useLoginMutation();
-
-  const handleChange = ({
-    target: { name, value },
-  }: React.ChangeEvent<HTMLInputElement>) =>
-    setFormState((prev) => ({ ...prev, [name]: value }));
-
-  const onSubmit = async () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormInputs>();
+  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
       console.log('req');
       await login(formState).unwrap();
@@ -36,22 +35,24 @@ export const LoginForm: FC<LoginFormProps> = () => {
       });
     }
   };
+  console.log(watch('email'));
+
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleChange = ({
+    target: { name, value },
+  }: React.ChangeEvent<HTMLInputElement>) =>
+    setFormState((prev) => ({ ...prev, [name]: value }));
 
   return (
-    <div className='flex flex-col gap-4 max-w-xl'>
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-3'>
+      <input className='outline' defaultValue='test' {...register('email')} />
       <input
         className='outline'
-        type='email'
-        onChange={handleChange}
-        name='email'
+        {...register('password', { required: true })}
       />
-      <input
-        className='outline'
-        type='password'
-        onChange={handleChange}
-        name='password'
-      />
-      <Button onClick={onSubmit}>{isLoading ? 'loading' : 'submit'}</Button>
-    </div>
+      {errors.password && <span>This field is required</span>}
+      <input type='submit' />
+    </form>
   );
 };
