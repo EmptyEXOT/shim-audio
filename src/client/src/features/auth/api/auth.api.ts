@@ -15,7 +15,7 @@ export const authApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<UserResponse, LoginRequest>({
       query: (credentials) => ({
-        url: 'login',
+        url: 'auth/login',
         method: 'POST',
         body: credentials,
       }),

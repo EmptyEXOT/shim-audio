@@ -11,10 +11,6 @@ interface FormInputs {
 }
 
 export const LoginForm: FC<LoginFormProps> = () => {
-  const [formState, setFormState] = useState<FormInputs>({
-    email: '',
-    password: '',
-  });
   const {
     register,
     handleSubmit,
@@ -24,7 +20,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
       console.log('req');
-      await login(formState).unwrap();
+      await login(data).unwrap();
       console.log('success');
     } catch (err) {
       console.log({
@@ -38,11 +34,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
   console.log(watch('email'));
 
   const [login, { isLoading }] = useLoginMutation();
-
-  const handleChange = ({
-    target: { name, value },
-  }: React.ChangeEvent<HTMLInputElement>) =>
-    setFormState((prev) => ({ ...prev, [name]: value }));
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-3'>
