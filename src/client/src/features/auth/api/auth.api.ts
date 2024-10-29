@@ -18,7 +18,7 @@ export const authApi = emptySplitApi.injectEndpoints({
         url: 'auth/login',
         method: 'POST',
         body: credentials,
-        credentials: 'include',
+        // credentials: 'include',
       }),
     }),
   }),

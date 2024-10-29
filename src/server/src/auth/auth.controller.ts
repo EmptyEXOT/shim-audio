@@ -37,7 +37,7 @@ export class AuthController {
     @Response() response,
   ) {
     const mode = this.configService.get<string>('MODE');
-    const { accessToken, refreshToken, session } = await this.authService.login(
+    const { refreshToken, ...payload } = await this.authService.login(
       req.user,
       userAgent,
     );
@@ -47,8 +47,7 @@ export class AuthController {
       sameSite: 'Lax',
       secure: mode === 'production',
     });
-    // console.log(`login api refreshToken: ${refreshToken}`);
-    return response.json({ accessToken, session });
+    return response.json({ ...payload });
   }
 
   @Post('refresh')

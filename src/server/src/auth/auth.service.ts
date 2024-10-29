@@ -34,7 +34,12 @@ export class AuthService {
       userAgent,
     );
 
-    return { accessToken, refreshToken, session: session.id };
+    return {
+      accessToken,
+      refreshToken,
+      sessionId: session.id,
+      email: user.email,
+    };
   }
 
   async generateTokens(user: Omit<User, 'password'>) {
