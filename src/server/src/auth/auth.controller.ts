@@ -8,14 +8,13 @@ import {
   Response,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { SessionService } from 'src/session/session.service';
 import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { ConfigService } from '@nestjs/config';
-import { UsersService } from 'src/users/users.service';
-import { SessionService } from 'src/session/session.service';
-import { access } from 'fs';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -37,7 +36,6 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Response() response,
   ) {
-    // console.log(req);
     const mode = this.configService.get<string>('MODE');
     const { accessToken, refreshToken, session } = await this.authService.login(
       req.user,
@@ -50,7 +48,7 @@ export class AuthController {
       secure: mode === 'production',
     });
     // console.log(`login api refreshToken: ${refreshToken}`);
-    return response.json({ accessToken, refreshToken, session });
+    return response.json({ accessToken, session });
   }
 
   @Post('refresh')

@@ -1,7 +1,7 @@
-import { Button } from '@/shared/component/button/ui/Button';
-import { FC, useState } from 'react';
-import { useLoginMutation } from '../api/auth.api';
+import { FormInput } from '@/shared/component/form_input/ui/FormInput';
+import { FC } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useLoginMutation } from '../api/auth.api';
 
 export interface LoginFormProps {}
 
@@ -11,12 +11,16 @@ interface FormInputs {
 }
 
 export const LoginForm: FC<LoginFormProps> = () => {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<FormInputs>();
+  const { handleSubmit, control } = useForm<FormInputs>({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    mode: 'onChange',
+  });
+
+  const [login, { isLoading }] = useLoginMutation();
+
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
       console.log('req');
@@ -31,18 +35,25 @@ export const LoginForm: FC<LoginFormProps> = () => {
       });
     }
   };
-  console.log(watch('email'));
-
-  const [login, { isLoading }] = useLoginMutation();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-3'>
-      <input className='outline' defaultValue='test' {...register('email')} />
-      <input
+      <FormInput<FormInputs>
         className='outline'
-        {...register('password', { required: true })}
+        label='email'
+        control={control}
+        name='email'
+        rules={{ required: true }}
+      ></FormInput>
+      <FormInput<FormInputs>
+        className='outline'
+        label='password'
+        control={control}
+        name='password'
+        type='password'
+        rules={{ required: true }}
       />
-      {errors.password && <span>This field is required</span>}
+      {/* {errors.password && <span>This field is required</span>} */}
       <input type='submit' />
     </form>
   );
