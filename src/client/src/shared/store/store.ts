@@ -1,12 +1,15 @@
 import { authReducer } from '@/features/auth/model/auth.slice';
 import { configureStore } from '@reduxjs/toolkit';
 import { emptySplitApi } from './api/emptySplitApi';
+import { getDefaultConfig } from 'tailwind-merge';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [emptySplitApi.reducerPath]: emptySplitApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(emptySplitApi.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

@@ -5,13 +5,7 @@ import {
   Path,
   useController,
   UseControllerProps,
-  UseFormRegister,
 } from 'react-hook-form';
-
-interface IFormValues {
-  FirstName: string;
-  Age: number;
-}
 
 interface FormInputProps<FormValues extends FieldValues> {
   label: Path<FormValues>;
@@ -19,10 +13,9 @@ interface FormInputProps<FormValues extends FieldValues> {
   type?: string;
 }
 
-// Компонент FormInput
-export const FormInput = function <FormValues extends FieldValues>(
+export const FormInput = <FormValues extends FieldValues>(
   props: UseControllerProps<FormValues> & FormInputProps<FormValues>
-) {
+) => {
   const { field, fieldState } = useController(props);
   return (
     <div>
