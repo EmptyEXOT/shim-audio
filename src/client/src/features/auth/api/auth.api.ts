@@ -22,4 +22,4 @@ export const authApi = emptySplitApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useValidateQuery } = authApi;

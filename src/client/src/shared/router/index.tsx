@@ -7,6 +7,7 @@ import { Skeleton } from '../component/skeleton';
 import { ProfilePage } from '@/pages/profile';
 import { privateRouteLoader } from './loaders/privateRoot.loader';
 import { withPrivate } from './hocs/with_private/withPrivate';
+import { withRedirectIfAuth } from './hocs/with_redirect_if_auth/withRedirectIfAuth';
 
 export const router = createBrowserRouter([
   {
@@ -23,10 +24,12 @@ export const router = createBrowserRouter([
       },
       {
         path: '/login',
-        element: (
+        loader: privateRouteLoader,
+        element: withRedirectIfAuth(
           <Suspense fallback={<Skeleton.Box height={'48px'} width={'100%'} />}>
             <LoginPage />
-          </Suspense>
+          </Suspense>,
+          '/profile'
         ),
       },
       {
