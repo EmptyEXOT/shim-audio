@@ -13,6 +13,7 @@ import { SessionService } from 'src/session/session.service';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
+import { ValidateResponseDto } from './dto/Validate.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 
@@ -34,9 +35,9 @@ export class AuthController {
   async login(
     @Request() req: AuthenticatedRequest,
     @Headers('user-agent') userAgent: string,
-    @Response() response,
+    @Response({ passthrough: true }) response,
   ) {
-    const mode = this.configService.get<string>('MODE');
+    // const mode = this.configService.get<string>('MODE');
     const { refreshToken, ...payload } = await this.authService.login(
       req.user,
       userAgent,
@@ -44,16 +45,16 @@ export class AuthController {
     response.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      sameSite: 'Lax',
-      secure: mode === 'production',
+      sameSite: 'None',
+      secure: true,
     });
     return response.json({ ...payload });
   }
 
   @Post('refresh')
-  async refresh(@Request() req, @Response() response) {
-    const mode = this.configService.get<string>('MODE');
-    const refreshToken = req.cookies['refresh_token'] || req.body.refreshToken;
+  async refresh(@Request() req, @Response({ passthrough: true }) response) {
+    // const mode = this.configService.get<string>('MODE');
+    const refreshToken = req.cookies['refresh_token'];
 
     console.log('auth/refresh -> refresh token:', refreshToken);
     if (!refreshToken) {
@@ -62,16 +63,16 @@ export class AuthController {
         .json({ message: 'Refresh token not found' }); // Если токен не найден
     }
 
-    const result = await this.authService.refreshTokens(
+    const { newRefreshToken, ...result } = await this.authService.refreshTokens(
       refreshToken,
       req.body.sessionId,
     );
 
-    response.cookie('refresh_token', result['refreshToken'], {
+    response.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      sameSite: 'Lax',
-      secure: mode === 'production',
+      sameSite: 'None',
+      secure: true,
     });
     console.log(result);
     return response.json(result);
@@ -84,11 +85,13 @@ export class AuthController {
     return await this.authService.logout(req.user.id, 1);
   }
 
-  @Post('validate')
-  async validate(@Request() req) {
-    // console.log(req.cookies['refreshToken']);
-    return await this.authService.verify(req.body.accessToken);
-    // return response.json(isValid);
+  @UseGuards(JWTAuthGuard)
+  @Get('validate')
+  async validate(): Promise<ValidateResponseDto> {
+    return {
+      isValid: true,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @UseGuards(JWTAuthGuard)

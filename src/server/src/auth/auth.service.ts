@@ -1,5 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { compareSync } from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from './types/jwt-payload.interface';
@@ -59,7 +64,7 @@ export class AuthService {
       secret: JWT_SECRET,
     });
     if (!isValid) {
-      return new UnauthorizedException();
+      throw new UnauthorizedException('Invalid Token');
     }
     const info = this.jwtService.decode<JwtPayload>(refreshToken);
     const session = await this.sessionService.findOne(sessionId);
@@ -67,14 +72,19 @@ export class AuthService {
     const { password, ...user } = await this.userService.findOneByEmail(
       info.email,
     );
-    console.log(session.refreshToken);
+    console.log('awaited:', session.refreshToken);
 
-    if (isValid && session.refreshToken === refreshToken) {
+    if (session.refreshToken === refreshToken) {
       const { accessToken, refreshToken } = await this.generateTokens(user);
       await this.sessionService.setRefreshToken(session.id, refreshToken);
-      return { accessToken, refreshToken, session: session.id };
+      return {
+        accessToken,
+        newRefreshToken: refreshToken,
+        sessionId: session.id,
+        email: user.email,
+      };
     }
-    return new UnauthorizedException();
+    throw new UnauthorizedException();
   }
 
   async logout(userId: number, sessionId: number) {
@@ -84,16 +94,21 @@ export class AuthService {
   }
 
   async verify(token: string) {
+    if (!token) {
+      throw new BadRequestException('Access token is required');
+    }
     try {
       this.jwtService.verify(token, {
         secret: JWT_SECRET,
       });
-      return {
-        message: token,
-        status: 200,
-      };
+      return token;
     } catch (e) {
-      return new UnauthorizedException();
+      if (e instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Invalid token');
+      } else if (e instanceof TokenExpiredError) {
+        throw new UnauthorizedException('Token has expired');
+      }
+      throw new InternalServerErrorException('Error verifying token');
     }
   }
 }

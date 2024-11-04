@@ -17,7 +17,7 @@ import { SessionModule } from 'src/session/session.module';
     SessionModule,
     JwtModule.register({
       secret: JWT_SECRET,
-      signOptions: { expiresIn: '5s' },
+      signOptions: { expiresIn: '15s' },
     }),
   ],
   controllers: [AuthController],
