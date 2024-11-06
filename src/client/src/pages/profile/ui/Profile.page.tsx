@@ -1,12 +1,18 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
-export interface ProfilePageProps {}
+export interface ProfilePageProps {
+  children?: ReactNode;
+}
 
-const ProfilePage: FC<ProfilePageProps> = () => {
+const ProfilePage: FC<ProfilePageProps> = (props) => {
   return (
     <div className='container mx-auto'>
       <h1>Profile Page</h1>
-      <div className='flex justify-center'>profile!!!</div>
+      <Link to='/profile/sessions'>Sessions!!!</Link>
+      {props.children}
+      <Outlet />
     </div>
   );
 };

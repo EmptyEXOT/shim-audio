@@ -19,6 +19,7 @@ const webpackConfig = (): webpack.Configuration => {
       path: path.resolve(__dirname, 'dist'),
       assetModuleFilename: 'assets/[hash][ext][query]',
       clean: true,
+      publicPath: '/',
     },
     module: {
       rules: [

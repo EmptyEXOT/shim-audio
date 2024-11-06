@@ -20,9 +20,11 @@ const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.email = action.payload.email;
       state.sessionId = action.payload.sessionId;
-      cookies.set(COOKIE.ACCESS_TOKEN, action.payload.accessToken);
-      cookies.set(COOKIE.EMAIL, action.payload.email);
-      cookies.set(COOKIE.SESSION_ID, action.payload.sessionId);
+      cookies.set(COOKIE.ACCESS_TOKEN, action.payload.accessToken, {
+        path: '/',
+      });
+      cookies.set(COOKIE.EMAIL, action.payload.email, { path: '/' });
+      cookies.set(COOKIE.SESSION_ID, action.payload.sessionId, { path: '/' });
     },
     clearSession: (state) => {
       state.accessToken = null;
@@ -40,9 +42,9 @@ const authSlice = createSlice({
         state.accessToken = payload.accessToken;
         state.email = payload.email;
         state.sessionId = payload.sessionId;
-        cookies.set(COOKIE.ACCESS_TOKEN, payload.accessToken);
-        cookies.set(COOKIE.EMAIL, payload.email);
-        cookies.set(COOKIE.SESSION_ID, payload.sessionId);
+        cookies.set(COOKIE.ACCESS_TOKEN, payload.accessToken, { path: '/' });
+        cookies.set(COOKIE.EMAIL, payload.email, { path: '/' });
+        cookies.set(COOKIE.SESSION_ID, payload.sessionId, { path: '/' });
       }
     );
   },

@@ -1,6 +1,6 @@
 import { emptySplitApi } from '@/shared/store/api/emptySplitApi';
-import { LoginRequest, LoginResponse } from './Login.types';
-import { ValidateResponse } from './Validate.types';
+import { LoginRequest, LoginResponse } from '../types/Login.api.types';
+import { ValidateResponse } from '../types/Validate.api.types';
 
 export const authApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({

@@ -44,6 +44,5 @@ export const baseQueryWithReauth: BaseQueryFn<
       api.dispatch(authActions.clearSession());
     }
   }
-  //   console.log(result);
   return result;
 };

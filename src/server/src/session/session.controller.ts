@@ -1,18 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  ForbiddenException,
+  Get,
   Headers,
+  Param,
+  Patch,
+  Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import { SessionService } from './session.service';
+import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
-import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ClientSession } from './entities/session.entity';
+import { SessionService } from './session.service';
+import { DeleteResponseDto } from './dto/Delete.dto';
 
 @Controller('session')
 export class SessionController {
@@ -48,8 +52,21 @@ export class SessionController {
     return this.sessionService.update(+id, updateSessionDto);
   }
 
+  @UseGuards(JWTAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sessionService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Req() request,
+  ): Promise<DeleteResponseDto> {
+    const userId = request.user.userId;
+    const session: ClientSession = await this.sessionService.findOne(+id);
+    if (!session || session.user.id !== +userId) {
+      throw new ForbiddenException('У вас нет прав для удаления этой сессии');
+    }
+    await this.sessionService.remove(+id);
+    return {
+      statusCode: 200,
+      removedSessionId: +id,
+    };
   }
 }

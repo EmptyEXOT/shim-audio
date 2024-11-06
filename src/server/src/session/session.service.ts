@@ -6,8 +6,6 @@ import { UAParser } from 'ua-parser-js';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { ClientSession } from './entities/session.entity';
-import { RefreshToken } from 'src/refresh-token/entities/refresh-token.entity';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SessionService {
@@ -44,7 +42,10 @@ export class SessionService {
   }
 
   async findOne(id: number) {
-    return await this.sessionRepository.findOneBy({ id });
+    return await this.sessionRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
   }
 
   async setRefreshToken(sessionId: number, refreshToken: string) {

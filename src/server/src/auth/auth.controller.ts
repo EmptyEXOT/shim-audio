@@ -45,8 +45,8 @@ export class AuthController {
     response.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      sameSite: 'None',
-      secure: true,
+      sameSite: 'Lax',
+      secure: false,
     });
     return response.json({ ...payload });
   }
@@ -71,8 +71,8 @@ export class AuthController {
     response.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      sameSite: 'None',
-      secure: true,
+      sameSite: 'Lax',
+      secure: false,
     });
     console.log(result);
     return response.json(result);
