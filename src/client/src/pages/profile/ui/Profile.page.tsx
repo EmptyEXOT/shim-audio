@@ -8,11 +8,18 @@ export interface ProfilePageProps {
 
 const ProfilePage: FC<ProfilePageProps> = (props) => {
   return (
-    <div className='container mx-auto'>
+    <div className='container mx-auto h-full'>
       <h1>Profile Page</h1>
-      <Link to='/profile/sessions'>Sessions!!!</Link>
-      {props.children}
-      <Outlet />
+      <div className='flex outline'>
+        <div className='flex flex-col p-4 border-e border-solid border-e-black'>
+          <Link to='/profile'>Profile</Link>
+          <Link to='/profile/sessions'>Sessions</Link>
+        </div>
+        <div className='p-4 w-full'>
+          {props.children}
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 };

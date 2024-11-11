@@ -1,15 +1,17 @@
 import { Session } from '@/entities/sessions';
 import { useGetSessionsQuery } from '@/entities/sessions/api/sessions.api';
+import { authSelector } from '@/features/auth/selectors/auth.selector';
+import { useAppSelector } from '@/shared/store/hooks/hooks';
 import { FC } from 'react';
 
 export interface SessionsPageProps {}
 
 const SessionsPage: FC<SessionsPageProps> = () => {
-  const { data, refetch } = useGetSessionsQuery(1);
+  const { userId } = useAppSelector(authSelector);
+  const { data, refetch } = useGetSessionsQuery(userId || 0);
 
   return (
     <div className='container mx-auto'>
-      <h1>Sessions Page</h1>
       <div className='flex gap-2 flex-col justify-center'>
         {data
           ? data.map((session, index) => (
