@@ -44,6 +44,7 @@ export class AuthService {
       refreshToken,
       sessionId: session.id,
       email: user.email,
+      userId: user.id,
     };
   }
 
@@ -57,6 +58,14 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
     };
+  }
+
+  async generateConfirmationToken(user: Omit<User, 'password'>) {
+    const payload: JwtPayload = {
+      email: user.email,
+      sub: user.id,
+    };
+    return this.jwtService.sign(payload, { expiresIn: '6h' });
   }
 
   async refreshTokens(refreshToken: string, sessionId: number) {
@@ -82,6 +91,7 @@ export class AuthService {
         newRefreshToken: refreshToken,
         sessionId: session.id,
         email: user.email,
+        userId: user.id,
       };
     }
     throw new UnauthorizedException();
@@ -93,7 +103,7 @@ export class AuthService {
     return session;
   }
 
-  async verify(token: string) {
+  async verify<TokenPayload>(token: string): Promise<TokenPayload> {
     if (!token) {
       throw new BadRequestException('Access token is required');
     }
@@ -101,7 +111,7 @@ export class AuthService {
       this.jwtService.verify(token, {
         secret: JWT_SECRET,
       });
-      return token;
+      return this.jwtService.decode<TokenPayload>(token);
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
         throw new UnauthorizedException('Invalid token');

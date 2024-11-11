@@ -23,7 +23,6 @@ export class UsersService {
     });
 
     if (candidate) {
-      console.log(candidate);
       throw new ConflictException('User with this email already exists');
     }
 
@@ -63,6 +62,15 @@ export class UsersService {
 
   async remove(id: number) {
     return await this.userRepository.delete({ id });
+  }
+
+  async confirm(user: User) {
+    const activated = await this.userRepository.save({
+      ...user,
+      isActive: true,
+    });
+    console.log(activated);
+    return activated;
   }
 
   // async addSession(user: User, session: ClientSession) {

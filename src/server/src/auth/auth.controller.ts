@@ -1,21 +1,26 @@
 import {
+  Body,
   Controller,
   Get,
   Headers,
   HttpStatus,
+  Param,
   Post,
   Request,
   Response,
   UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { SessionService } from 'src/session/session.service';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
+import { LoginResponseDto } from './dto/Login.dto';
+import { RefreshTokensResponseDto } from './dto/RefreshTokens.dto';
+import { RegisterRequestDto } from './dto/Register.dto';
 import { ValidateResponseDto } from './dto/Validate.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { MailerService } from '@nestjs-modules/mailer';
+import { JwtPayload } from './types/jwt-payload.interface';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -25,10 +30,32 @@ interface AuthenticatedRequest extends Request {
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
     private readonly userService: UsersService,
-    private readonly sessionService: SessionService,
+    private readonly mailService: MailerService,
   ) {}
+
+  @Post('register')
+  async register(@Body() payload: RegisterRequestDto) {
+    const candidate = await this.userService.create(payload);
+    const confirmationToken =
+      await this.authService.generateConfirmationToken(candidate);
+    this.mailService.sendMail({
+      from: 'Shim Audio <alimsadullaev18@gmail.com>',
+      to: payload.email,
+      subject: 'Завершение регистрации на Shim Audio',
+      text: `Для завершения регистрации перейдите по ссылке: 
+      http://localhost:3001/api/auth/confirm/${confirmationToken}`,
+    });
+  }
+
+  @Get('confirm/:token')
+  async confirm(@Param('token') token: string) {
+    const { sub: userId } = await this.authService.verify<JwtPayload>(token);
+    console.log(userId);
+    const candidate = await this.userService.findOne(userId);
+    const user = await this.userService.confirm(candidate);
+    return user;
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -36,27 +63,27 @@ export class AuthController {
     @Request() req: AuthenticatedRequest,
     @Headers('user-agent') userAgent: string,
     @Response({ passthrough: true }) response,
-  ) {
-    // const mode = this.configService.get<string>('MODE');
+  ): Promise<LoginResponseDto> {
     const { refreshToken, ...payload } = await this.authService.login(
       req.user,
       userAgent,
     );
     response.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: 'Lax',
       secure: false,
     });
-    return response.json({ ...payload });
+    return response.json(payload);
   }
 
   @Post('refresh')
-  async refresh(@Request() req, @Response({ passthrough: true }) response) {
-    // const mode = this.configService.get<string>('MODE');
+  async refresh(
+    @Request() req,
+    @Response({ passthrough: true }) response,
+  ): Promise<RefreshTokensResponseDto> {
     const refreshToken = req.cookies['refresh_token'];
 
-    console.log('auth/refresh -> refresh token:', refreshToken);
     if (!refreshToken) {
       return response
         .status(HttpStatus.UNAUTHORIZED)
@@ -70,11 +97,10 @@ export class AuthController {
 
     response.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: 'Lax',
       secure: false,
     });
-    console.log(result);
     return response.json(result);
   }
 
@@ -87,22 +113,14 @@ export class AuthController {
 
   @UseGuards(JWTAuthGuard)
   @Get('validate')
-  async validate(): Promise<ValidateResponseDto> {
+  async validate(
+    @Request() req: AuthenticatedRequest,
+  ): Promise<ValidateResponseDto> {
+    console.log(req.user);
     return {
+      userId: req.user.id,
       isValid: true,
       statusCode: HttpStatus.OK,
-    };
-  }
-
-  @UseGuards(JWTAuthGuard)
-  @Get('restore-session')
-  async restoreSession(@Request() req) {
-    const user = await this.userService.findOne(req.body.userId);
-    const session = await this.sessionService.findOne(req.body.sessionId);
-
-    return {
-      email: user.email,
-      sessionId: session.id,
     };
   }
 }

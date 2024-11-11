@@ -58,9 +58,8 @@ export class SessionController {
     @Param('id') id: string,
     @Req() request,
   ): Promise<DeleteResponseDto> {
-    const userId = request.user.userId;
     const session: ClientSession = await this.sessionService.findOne(+id);
-    if (!session || session.user.id !== +userId) {
+    if (!session || session.user.id !== +request.user.id) {
       throw new ForbiddenException('У вас нет прав для удаления этой сессии');
     }
     await this.sessionService.remove(+id);

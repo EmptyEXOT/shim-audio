@@ -10,7 +10,8 @@ import { RefreshToken } from './refresh-token/entities/refresh-token.entity';
 import { SessionModule } from './session/session.module';
 import { ClientSession } from './session/entities/session.entity';
 import { ConfigModule } from '@nestjs/config';
-
+import { MailerModule } from '@nestjs-modules/mailer';
+//
 @Module({
   controllers: [AppController],
   providers: [AppService],
@@ -29,6 +30,16 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.development'],
+    }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        secure: true,
+        auth: {
+          user: process.env.NODEMAILER_USER,
+          pass: process.env.NODEMAILER_PASS,
+        },
+      },
     }),
     AuthModule,
     RefreshTokenModule,
