@@ -29,7 +29,7 @@ services:
       - ./server:/app
       - /app/node_modules
     env_file:
-      - ./server/.env.development
+      - ./server/.env
 
   pgadmin:
     image: dpage/pgadmin4
