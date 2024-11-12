@@ -1,20 +1,19 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { SessionService } from './session.service';
-import { SessionController } from './session.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientSession } from './entities/session.entity';
-import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
 import { UsersModule } from 'src/users/users.module';
-import { UsersService } from 'src/users/users.service';
+import { ClientSession } from './entities/session.entity';
+import { SessionController } from './session.controller';
+import { SessionService } from './session.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [SessionController],
-  providers: [SessionService, UsersService],
+  providers: [SessionService],
   imports: [
     TypeOrmModule.forFeature([ClientSession]),
-    forwardRef(() => RefreshTokenModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => AuthModule),
   ],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, SessionService],
 })
 export class SessionModule {}

@@ -83,7 +83,6 @@ export class AuthController {
     @Response({ passthrough: true }) response,
   ): Promise<RefreshTokensResponseDto> {
     const refreshToken = req.cookies['refresh_token'];
-
     if (!refreshToken) {
       return response
         .status(HttpStatus.UNAUTHORIZED)
@@ -92,7 +91,7 @@ export class AuthController {
 
     const { newRefreshToken, ...result } = await this.authService.refreshTokens(
       refreshToken,
-      req.body.sessionId,
+      +req.body.sessionId,
     );
 
     response.cookie('refresh_token', newRefreshToken, {
@@ -101,7 +100,7 @@ export class AuthController {
       sameSite: 'Lax',
       secure: false,
     });
-    return response.json(result);
+    return { ...result, statusCode: 200 };
   }
 
   @UseGuards(JWTAuthGuard)

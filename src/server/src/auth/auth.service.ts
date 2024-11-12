@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -15,6 +17,7 @@ import { JWT_SECRET } from 'src/constants';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
     private jwtService: JwtService,
     private sessionService: SessionService,
@@ -81,7 +84,6 @@ export class AuthService {
     const { password, ...user } = await this.userService.findOneByEmail(
       info.email,
     );
-    console.log('awaited:', session.refreshToken);
 
     if (session.refreshToken === refreshToken) {
       const { accessToken, refreshToken } = await this.generateTokens(user);
@@ -120,5 +122,21 @@ export class AuthService {
       }
       throw new InternalServerErrorException('Error verifying token');
     }
+  }
+
+  private isPasswordStrong(password: string): boolean {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChars = /[!@#$%^&*]/.test(password);
+    const isValidLength = password.length >= 8 && password.length <= 24;
+
+    return (
+      hasUpperCase &&
+      hasLowerCase &&
+      hasNumbers &&
+      hasSpecialChars &&
+      isValidLength
+    );
   }
 }
