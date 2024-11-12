@@ -4,31 +4,20 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  Headers,
   Param,
   Patch,
-  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CreateSessionDto } from './dto/create-session.dto';
+import { DeleteResponseDto } from './dto/Delete.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { ClientSession } from './entities/session.entity';
 import { SessionService } from './session.service';
-import { DeleteResponseDto } from './dto/Delete.dto';
 
 @Controller('session')
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
-
-  @Post()
-  create(
-    @Body() createSessionDto: CreateSessionDto,
-    @Headers('user-agent') userAgent: string,
-  ) {
-    return this.sessionService.create(createSessionDto, userAgent);
-  }
 
   @UseGuards(JWTAuthGuard)
   @Get('user/:id')

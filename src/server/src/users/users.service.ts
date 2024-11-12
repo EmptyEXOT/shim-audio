@@ -60,11 +60,11 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    return await this.userRepository.findOneBy({ id });
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    const candidate = await this.userRepository.findOneBy({ id });
+    if (!candidate) {
+      throw new NotFoundException('User with such email doesnt exist');
+    }
+    return candidate;
   }
 
   async remove(id: number) {

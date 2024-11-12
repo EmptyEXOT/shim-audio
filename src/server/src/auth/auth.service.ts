@@ -13,6 +13,9 @@ import { JwtPayload } from './types/jwt-payload.interface';
 import { User } from 'src/users/entities/user.entity';
 import { SessionService } from 'src/session/session.service';
 import { JWT_SECRET } from 'src/constants';
+import { AuthTokens } from './types/AuthTokens.type';
+import { ClientSession } from 'src/session/entities/session.entity';
+import { LoginResponseDto } from './dto/Login.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,23 +38,27 @@ export class AuthService {
   }
 
   // Данный сервис только генерирует и возвращает jwt. Проверка происходит в validateUser
-  async login(user: Omit<User, 'password'>, userAgent: string) {
-    const { accessToken, refreshToken } = await this.generateTokens(user);
-    const session = await this.sessionService.create(
-      { userEmail: user.email, refreshToken },
-      userAgent,
-    );
+  async login(
+    user: User,
+    session: ClientSession,
+    tokens: AuthTokens,
+  ): Promise<LoginResponseDto> {
+    // const { accessToken, refreshToken } = await this.generateTokens(user);
+    // const session = await this.sessionService.create(
+    //   { userEmail: user.email, refreshToken },
+    //   userAgent,
+    // );
 
     return {
-      accessToken,
-      refreshToken,
+      accessToken: tokens.accessToken,
       sessionId: session.id,
       email: user.email,
       userId: user.id,
+      statusCode: 200,
     };
   }
 
-  async generateTokens(user: Omit<User, 'password'>) {
+  async generateAuthTokens(user: Omit<User, 'password'>) {
     const payload: JwtPayload = {
       email: user.email,
       sub: user.id,
@@ -86,7 +93,7 @@ export class AuthService {
     );
 
     if (session.refreshToken === refreshToken) {
-      const { accessToken, refreshToken } = await this.generateTokens(user);
+      const { accessToken, refreshToken } = await this.generateAuthTokens(user);
       await this.sessionService.setRefreshToken(session.id, refreshToken);
       return {
         accessToken,

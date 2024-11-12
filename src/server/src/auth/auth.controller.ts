@@ -22,6 +22,9 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MailerService } from '@nestjs-modules/mailer';
 import { JwtPayload } from './types/jwt-payload.interface';
 import { CookieService } from 'src/cookie/cookie.service';
+import { SessionService } from 'src/session/session.service';
+import { AuthTokens } from './types/AuthTokens.type';
+import { ClientSession } from 'src/session/entities/session.entity';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -34,6 +37,7 @@ export class AuthController {
     private readonly userService: UsersService,
     private readonly mailService: MailerService,
     private readonly cookieService: CookieService,
+    private readonly sessionService: SessionService,
   ) {}
 
   @Post('register')
@@ -66,18 +70,15 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Response({ passthrough: true }) response,
   ): Promise<LoginResponseDto> {
-    const { refreshToken, ...payload } = await this.authService.login(
-      req.user,
+    const user: User = await this.userService.findOne(req.user.id);
+    const tokens: AuthTokens = await this.authService.generateAuthTokens(user);
+    const session: ClientSession = await this.sessionService.create(
+      user,
       userAgent,
+      tokens,
     );
-    // response.cookie('refresh_token', refreshToken, {
-    //   httpOnly: true,
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   sameSite: 'Lax',
-    //   secure: false,
-    // });
-    this.cookieService.setRefreshToken(response, refreshToken);
-    return { ...payload, statusCode: 200 };
+    this.cookieService.setRefreshToken(response, tokens.refreshToken);
+    return await this.authService.login(user, session, tokens);
   }
 
   @Post('refresh')

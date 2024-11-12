@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthTokens } from 'src/auth/types/AuthTokens.type';
+import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { UAParser } from 'ua-parser-js';
-import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { ClientSession } from './entities/session.entity';
 
@@ -15,25 +16,19 @@ export class SessionService {
     private userService: UsersService,
   ) {}
 
-  async create(createSessionDto: CreateSessionDto, userAgent: string) {
+  async create(user: User, userAgent: string, tokens: AuthTokens) {
     const parser = new UAParser('user-agent');
     const res = parser.setUA(userAgent).getResult();
 
-    const user = await this.userService.findOneByEmail(
-      createSessionDto.userEmail,
-    );
-
     const newSession = this.sessionRepository.create({
       user: user,
-      refreshToken: createSessionDto.refreshToken,
+      refreshToken: tokens.refreshToken,
       browser: res.browser.name || 'unknown',
       os: res.os.name || 'unknown',
       lastActive: new Date(),
     });
 
-    // await this.sessionRepository.save(newSession);
     await this.sessionRepository.save(newSession);
-    // await this.userService.addSession(user, newSession);
     return newSession;
   }
 
