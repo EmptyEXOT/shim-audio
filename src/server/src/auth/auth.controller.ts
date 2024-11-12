@@ -21,6 +21,7 @@ import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MailerService } from '@nestjs-modules/mailer';
 import { JwtPayload } from './types/jwt-payload.interface';
+import { CookieService } from 'src/cookie/cookie.service';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -32,6 +33,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UsersService,
     private readonly mailService: MailerService,
+    private readonly cookieService: CookieService,
   ) {}
 
   @Post('register')
@@ -68,13 +70,14 @@ export class AuthController {
       req.user,
       userAgent,
     );
-    response.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'Lax',
-      secure: false,
-    });
-    return response.json(payload);
+    // response.cookie('refresh_token', refreshToken, {
+    //   httpOnly: true,
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    //   sameSite: 'Lax',
+    //   secure: false,
+    // });
+    this.cookieService.setRefreshToken(response, refreshToken);
+    return { ...payload, statusCode: 200 };
   }
 
   @Post('refresh')
@@ -94,12 +97,7 @@ export class AuthController {
       +req.body.sessionId,
     );
 
-    response.cookie('refresh_token', newRefreshToken, {
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'Lax',
-      secure: false,
-    });
+    this.cookieService.setRefreshToken(response, newRefreshToken);
     return { ...result, statusCode: 200 };
   }
 

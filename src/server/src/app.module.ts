@@ -11,6 +11,7 @@ import { SessionModule } from './session/session.module';
 import { ClientSession } from './session/entities/session.entity';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { CookieModule } from './cookie/cookie.module';
 //
 @Module({
   controllers: [AppController],
@@ -44,6 +45,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     AuthModule,
     RefreshTokenModule,
     SessionModule,
+    CookieModule,
   ],
 })
 export class AppModule {}

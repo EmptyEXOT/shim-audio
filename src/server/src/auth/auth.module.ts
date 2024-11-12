@@ -7,6 +7,8 @@ import { UsersModule } from 'src/users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JWTStrategy } from './strategies/jwt.strategy';
+import { CookieModule } from 'src/cookie/cookie.module';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
@@ -17,9 +19,10 @@ import { JWTStrategy } from './strategies/jwt.strategy';
       secret: JWT_SECRET,
       signOptions: { expiresIn: '15s' },
     }),
+    CookieModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JWTStrategy],
+  providers: [AuthService, JWTStrategy, LocalStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
