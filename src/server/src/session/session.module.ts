@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from 'src/user/user.module';
 import { ClientSession } from './entities/session.entity';
 import { SessionController } from './session.controller';
 import { SessionService } from './session.service';

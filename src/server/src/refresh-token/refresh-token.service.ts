@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 import { CreateRefreshTokenDto } from './dto/create-refresh-token.dto';
 import { UpdateRefreshTokenDto } from './dto/update-refresh-token.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class RefreshTokenService {

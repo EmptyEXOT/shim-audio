@@ -8,11 +8,10 @@ import { hash } from 'bcryptjs';
 import { UserErrorCodes } from 'src/shared/enums/error-codes.enum';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -67,8 +66,8 @@ export class UsersService {
     return candidate;
   }
 
-  async remove(id: number) {
-    return await this.userRepository.delete({ id });
+  async remove(user: User) {
+    return await this.userRepository.delete({ id: user.id });
   }
 
   async confirm(user: User) {
@@ -79,14 +78,4 @@ export class UsersService {
     console.log(activated);
     return activated;
   }
-
-  // async addSession(user: User, session: ClientSession) {
-  //   console.log(user);
-  //   const userSessions = user.sessions || [];
-  //   console.log(`sessions: ${userSessions}`);
-  //   userSessions.push(session);
-  //   user.sessions = userSessions;
-  //   await this.userRepository.save(user);
-  //   return user;
-  // }
 }

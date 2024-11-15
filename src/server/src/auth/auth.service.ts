@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   forwardRef,
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -8,9 +9,9 @@ import {
 } from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { compareSync } from 'bcryptjs';
-import { UsersService } from 'src/users/users.service';
+import { UserService } from 'src/user/user.service';
 import { JwtPayload } from './types/jwt-payload.interface';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/user/entities/user.entity';
 import { SessionService } from 'src/session/session.service';
 import { JWT_SECRET } from 'src/constants';
 import { AuthTokens } from './types/AuthTokens.type';
@@ -20,8 +21,8 @@ import { LoginResponseDto } from './dto/Login.dto';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(forwardRef(() => UsersService))
-    private userService: UsersService,
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService,
     private jwtService: JwtService,
     private sessionService: SessionService,
   ) {}
@@ -43,18 +44,12 @@ export class AuthService {
     session: ClientSession,
     tokens: AuthTokens,
   ): Promise<LoginResponseDto> {
-    // const { accessToken, refreshToken } = await this.generateTokens(user);
-    // const session = await this.sessionService.create(
-    //   { userEmail: user.email, refreshToken },
-    //   userAgent,
-    // );
-
     return {
       accessToken: tokens.accessToken,
       sessionId: session.id,
       email: user.email,
       userId: user.id,
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
     };
   }
 

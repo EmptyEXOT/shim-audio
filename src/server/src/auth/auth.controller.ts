@@ -10,8 +10,8 @@ import {
   Response,
   UseGuards,
 } from '@nestjs/common';
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/Login.dto';
 import { RefreshTokensResponseDto } from './dto/RefreshTokens.dto';
@@ -34,7 +34,7 @@ interface AuthenticatedRequest extends Request {
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UsersService,
+    private readonly userService: UserService,
     private readonly mailService: MailerService,
     private readonly cookieService: CookieService,
     private readonly sessionService: SessionService,
@@ -99,7 +99,7 @@ export class AuthController {
     );
 
     this.cookieService.setRefreshToken(response, newRefreshToken);
-    return { ...result, statusCode: 200 };
+    return { ...result, statusCode: HttpStatus.OK };
   }
 
   @UseGuards(JWTAuthGuard)
@@ -114,7 +114,6 @@ export class AuthController {
   async validate(
     @Request() req: AuthenticatedRequest,
   ): Promise<ValidateResponseDto> {
-    console.log(req.user);
     return {
       userId: req.user.id,
       isValid: true,

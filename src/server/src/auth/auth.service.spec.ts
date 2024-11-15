@@ -1,9 +1,9 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { compareSync } from 'bcryptjs';
-import { UsersService } from 'src/users/users.service';
+import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/user/entities/user.entity';
 
 jest.mock('bcryptjs', () => ({
   compareSync: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userService: UsersService;
+  let userService: UserService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,7 +19,7 @@ describe('AuthService', () => {
         AuthService,
         JwtService,
         {
-          provide: UsersService,
+          provide: UserService,
           useValue: {
             findOneByEmail: jest.fn(),
           },
@@ -28,7 +28,7 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userService = module.get<UsersService>(UsersService);
+    userService = module.get<UserService>(UserService);
   });
 
   it('should validate user if credentials are valid', async () => {

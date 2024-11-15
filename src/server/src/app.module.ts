@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { User } from './users/entities/user.entity';
+import { User } from './user/entities/user.entity';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { RefreshToken } from './refresh-token/entities/refresh-token.entity';
 import { SessionModule } from './session/session.module';

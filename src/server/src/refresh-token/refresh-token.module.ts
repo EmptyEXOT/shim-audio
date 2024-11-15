@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SessionModule } from 'src/session/session.module';
 import { SessionService } from 'src/session/session.service';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from 'src/user/user.module';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { RefreshTokenController } from './refresh-token.controller';
 import { RefreshTokenService } from './refresh-token.service';

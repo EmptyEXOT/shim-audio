@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthTokens } from 'src/auth/types/AuthTokens.type';
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { UAParser } from 'ua-parser-js';
 import { UpdateSessionDto } from './dto/update-session.dto';
@@ -13,7 +13,7 @@ export class SessionService {
   constructor(
     @InjectRepository(ClientSession)
     private sessionRepository: Repository<ClientSession>,
-    private userService: UsersService,
+    private userService: UserService,
   ) {}
 
   async create(user: User, userAgent: string, tokens: AuthTokens) {
