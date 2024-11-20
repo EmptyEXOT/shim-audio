@@ -1,4 +1,6 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -9,7 +11,20 @@ import {
   Request,
   Response,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  OmitType,
+} from '@nestjs/swagger';
+import { CookieService } from 'src/cookie/cookie.service';
+import { ClientSession } from 'src/session/entities/session.entity';
+import { SessionService } from 'src/session/session.service';
+import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
@@ -19,12 +34,9 @@ import { RegisterRequestDto } from './dto/Register.dto';
 import { ValidateResponseDto } from './dto/Validate.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { MailerService } from '@nestjs-modules/mailer';
-import { JwtPayload } from './types/jwt-payload.interface';
-import { CookieService } from 'src/cookie/cookie.service';
-import { SessionService } from 'src/session/session.service';
 import { AuthTokens } from './types/AuthTokens.type';
-import { ClientSession } from 'src/session/entities/session.entity';
+import { JwtPayload } from './types/jwt-payload.interface';
+import { RegisterValidationPipe } from 'src/shared/pipes/register-validation.pipe';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -40,26 +52,68 @@ export class AuthController {
     private readonly sessionService: SessionService,
   ) {}
 
+  @ApiConflictResponse({
+    description:
+      'Пользователь с таким email уже существует. Возвращает сообщение об ошибке.',
+    schema: {
+      example: {
+        statusCode: 409,
+        error: 'Conflict',
+        message: [ErrorMessages.EMAIL_EXISTS],
+      },
+    },
+  })
+  @ApiCreatedResponse({
+    description: 'Пользователь создан',
+    type: OmitType(User, ['password'] as const),
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Слабый пароль или ошибка валидации DTO. Возвращает массив сообщений об ошибках.',
+    schema: {
+      example: {
+        statusCode: 400,
+        error: 'Bad Request',
+        messages: [ErrorMessages.PASSWORD_WEAK, ErrorMessages.FNAME_EMPTY],
+      },
+    },
+  })
   @Post('register')
-  async register(@Body() payload: RegisterRequestDto) {
-    const candidate = await this.userService.create(payload);
+  @UsePipes(RegisterValidationPipe)
+  async register(
+    @Body()
+    payload: RegisterRequestDto & { errors: ErrorMessages[] },
+  ): Promise<Omit<User, 'password'>> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...candidate } = await this.userService.create(payload);
+
     const confirmationToken =
       await this.authService.generateConfirmationToken(candidate);
+
     this.mailService.sendMail({
-      from: 'Shim Audio <alimsadullaev18@gmail.com>',
       to: payload.email,
       subject: 'Завершение регистрации на Shim Audio',
-      text: `Для завершения регистрации перейдите по ссылке: 
-      http://localhost:3001/api/auth/confirm/${confirmationToken}`,
+      text: `Для завершения регистрации перейдите по ссылке:
+      ${process.env.REG_CONFIRMATION_EMAIL_URL}${confirmationToken}`,
     });
+    return candidate;
   }
 
+  @ApiOkResponse({
+    description: 'Ссылка валидна, аккаунт подтвержден',
+    type: OmitType(User, ['password'] as const),
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Неверная ссылка',
+  })
   @Get('confirm/:token')
-  async confirm(@Param('token') token: string) {
+  async confirm(
+    @Param('token') token: string,
+  ): Promise<Omit<User, 'password'>> {
     const { sub: userId } = await this.authService.verify<JwtPayload>(token);
-    console.log(userId);
     const candidate = await this.userService.findOne(userId);
-    const user = await this.userService.confirm(candidate);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...user } = await this.userService.confirm(candidate);
     return user;
   }
 
@@ -90,7 +144,7 @@ export class AuthController {
     if (!refreshToken) {
       return response
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: 'Refresh token not found' }); // Если токен не найден
+        .json({ message: 'Refresh token not found' });
     }
 
     const { newRefreshToken, ...result } = await this.authService.refreshTokens(
@@ -99,7 +153,7 @@ export class AuthController {
     );
 
     this.cookieService.setRefreshToken(response, newRefreshToken);
-    return { ...result, statusCode: HttpStatus.OK };
+    return result;
   }
 
   @UseGuards(JWTAuthGuard)
@@ -117,7 +171,6 @@ export class AuthController {
     return {
       userId: req.user.id,
       isValid: true,
-      statusCode: HttpStatus.OK,
     };
   }
 }

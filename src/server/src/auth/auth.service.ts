@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   forwardRef,
-  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -9,14 +8,13 @@ import {
 } from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { compareSync } from 'bcryptjs';
-import { UserService } from 'src/user/user.service';
-import { JwtPayload } from './types/jwt-payload.interface';
-import { User } from 'src/user/entities/user.entity';
-import { SessionService } from 'src/session/session.service';
-import { JWT_SECRET } from 'src/constants';
-import { AuthTokens } from './types/AuthTokens.type';
 import { ClientSession } from 'src/session/entities/session.entity';
+import { SessionService } from 'src/session/session.service';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { LoginResponseDto } from './dto/Login.dto';
+import { AuthTokens } from './types/AuthTokens.type';
+import { JwtPayload } from './types/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +36,6 @@ export class AuthService {
     return null;
   }
 
-  // Данный сервис только генерирует и возвращает jwt. Проверка происходит в validateUser
   async login(
     user: User,
     session: ClientSession,
@@ -49,7 +46,6 @@ export class AuthService {
       sessionId: session.id,
       email: user.email,
       userId: user.id,
-      statusCode: HttpStatus.OK,
     };
   }
 
@@ -75,7 +71,7 @@ export class AuthService {
 
   async refreshTokens(refreshToken: string, sessionId: number) {
     const isValid = this.jwtService.verify(refreshToken, {
-      secret: JWT_SECRET,
+      secret: process.env.JWT_SECRET,
     });
     if (!isValid) {
       throw new UnauthorizedException('Invalid Token');
@@ -101,8 +97,7 @@ export class AuthService {
     throw new UnauthorizedException();
   }
 
-  async logout(userId: number, sessionId: number) {
-    // const user = await this.userService.findOne(userId);
+  async logout(sessionId: number) {
     const session = await this.sessionService.findOne(sessionId);
     return session;
   }
@@ -113,7 +108,7 @@ export class AuthService {
     }
     try {
       this.jwtService.verify(token, {
-        secret: JWT_SECRET,
+        secret: process.env.JWT_SECRET,
       });
       return this.jwtService.decode<TokenPayload>(token);
     } catch (e) {
@@ -126,19 +121,12 @@ export class AuthService {
     }
   }
 
-  private isPasswordStrong(password: string): boolean {
+  public isPasswordStrong(password: string): boolean {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumbers = /\d/.test(password);
     const hasSpecialChars = /[!@#$%^&*]/.test(password);
-    const isValidLength = password.length >= 8 && password.length <= 24;
 
-    return (
-      hasUpperCase &&
-      hasLowerCase &&
-      hasNumbers &&
-      hasSpecialChars &&
-      isValidLength
-    );
+    return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
   }
 }
