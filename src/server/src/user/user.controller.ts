@@ -1,4 +1,10 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -10,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
+import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 
 @ApiTags('User')
 @Controller('user')
@@ -54,6 +61,9 @@ export class UserController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const candidate = await this.usersService.findOne(+id);
+    if (!candidate) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
     return this.usersService.remove(candidate);
   }
 }
