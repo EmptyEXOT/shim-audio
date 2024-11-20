@@ -53,7 +53,6 @@ export class SessionController {
     }
     await this.sessionService.remove(+id);
     return {
-      statusCode: 200,
       removedSessionId: +id,
     };
   }

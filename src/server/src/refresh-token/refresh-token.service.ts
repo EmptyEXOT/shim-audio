@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtPayload } from 'src/auth/types/jwt-payload.interface';
-import { JWT_SECRET } from 'src/constants';
 import { SessionService } from 'src/session/session.service';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateRefreshTokenDto } from './dto/create-refresh-token.dto';
 import { UpdateRefreshTokenDto } from './dto/update-refresh-token.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
-import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class RefreshTokenService {

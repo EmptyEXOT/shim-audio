@@ -12,7 +12,7 @@ import { ClientSession } from './session/entities/session.entity';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { CookieModule } from './cookie/cookie.module';
-//
+
 @Module({
   controllers: [AppController],
   providers: [AppService],
@@ -40,6 +40,7 @@ import { CookieModule } from './cookie/cookie.module';
           user: process.env.NODEMAILER_USER,
           pass: process.env.NODEMAILER_PASS,
         },
+        from: 'Shim Audio <alimsadullaev18@gmail.com>',
       },
     }),
     AuthModule,
