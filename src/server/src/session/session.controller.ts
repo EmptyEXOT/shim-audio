@@ -1,17 +1,14 @@
 import {
-  Body,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   Param,
-  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { DeleteResponseDto } from './dto/Delete.dto';
-import { UpdateSessionDto } from './dto/update-session.dto';
 import { ClientSession } from './entities/session.entity';
 import { SessionService } from './session.service';
 
@@ -34,11 +31,6 @@ export class SessionController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sessionService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSessionDto: UpdateSessionDto) {
-    return this.sessionService.update(+id, updateSessionDto);
   }
 
   @UseGuards(JWTAuthGuard)

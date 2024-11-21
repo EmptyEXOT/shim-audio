@@ -5,7 +5,6 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { UAParser } from 'ua-parser-js';
-import { UpdateSessionDto } from './dto/update-session.dto';
 import { ClientSession } from './entities/session.entity';
 
 @Injectable()
@@ -58,7 +57,7 @@ export class SessionService {
     });
   }
 
-  update(id: number, updateSessionDto: UpdateSessionDto) {
+  update(id: number) {
     return `This action updates a #${id} session`;
   }
 
