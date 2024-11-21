@@ -2,7 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { validate } from 'class-validator';
 import { AuthService } from 'src/auth/auth.service';
 import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
@@ -13,6 +16,7 @@ export class ValidationService {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateDto<T extends object>(
@@ -57,5 +61,43 @@ export class ValidationService {
       }
     }
     return errors;
+  }
+
+  validateToken(
+    token: string,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ): ErrorMessages[] {
+    if (!token) {
+      errors.push(ErrorMessages.ACCESS_TOKEN_REQUIRED);
+      if (isFinal) {
+        throw new BadRequestException(errors);
+      }
+      return errors;
+    }
+    try {
+      this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        errors.push(ErrorMessages.ACCESS_TOKEN_EXPIRED);
+        if (isFinal) {
+          throw new UnauthorizedException(errors);
+        }
+        return errors;
+      } else if (e instanceof JsonWebTokenError) {
+        errors.push(ErrorMessages.ACCESS_TOKEN_INVALID);
+        if (isFinal) {
+          throw new UnauthorizedException(errors);
+        }
+        return errors;
+      }
+      errors.push(ErrorMessages.ACCESS_TOKEN_VERIFYING_ERROR);
+      if (isFinal) {
+        throw new InternalServerErrorException(errors);
+      }
+      return errors;
+    }
   }
 }
