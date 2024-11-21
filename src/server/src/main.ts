@@ -26,13 +26,6 @@ async function bootstrap() {
     credentials: true,
   });
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: false,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
   app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(3001);
 }

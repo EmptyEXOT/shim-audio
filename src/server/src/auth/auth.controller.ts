@@ -16,6 +16,7 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiOkResponse,
   ApiUnauthorizedResponse,
   OmitType,
@@ -79,14 +80,9 @@ export class AuthController {
   })
   @Post('register')
   @UsePipes(RegisterValidationPipe)
-  // @UsePipes(EmailExistsPipe, DtoValidationPipe, PasswordStrengthPipe)
   async register(
-    @Body()
-    payload: RegisterRequestDto & { errors: ErrorMessages[] },
+    @Body() payload: RegisterRequestDto,
   ): Promise<Omit<User, 'password'>> {
-    // if (payload.errors) {
-    //   throw new BadRequestException(payload.errors);
-    // }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...candidate } = await this.userService.create(payload);
 
