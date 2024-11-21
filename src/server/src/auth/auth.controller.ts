@@ -1,6 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -25,6 +24,7 @@ import { CookieService } from 'src/cookie/cookie.service';
 import { ClientSession } from 'src/session/entities/session.entity';
 import { SessionService } from 'src/session/session.service';
 import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
+import { RegisterValidationPipe } from 'src/auth/pipes/register-validation.pipe';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
@@ -36,7 +36,6 @@ import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtPayload } from './types/jwt-payload.interface';
-import { RegisterValidationPipe } from 'src/shared/pipes/register-validation.pipe';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -80,10 +79,14 @@ export class AuthController {
   })
   @Post('register')
   @UsePipes(RegisterValidationPipe)
+  // @UsePipes(EmailExistsPipe, DtoValidationPipe, PasswordStrengthPipe)
   async register(
     @Body()
     payload: RegisterRequestDto & { errors: ErrorMessages[] },
   ): Promise<Omit<User, 'password'>> {
+    // if (payload.errors) {
+    //   throw new BadRequestException(payload.errors);
+    // }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...candidate } = await this.userService.create(payload);
 
@@ -156,11 +159,11 @@ export class AuthController {
     return result;
   }
 
+  // TODO: нужно создать сервис!
   @UseGuards(JWTAuthGuard)
   @Post('logout')
-  async logout(@Request() req) {
-    console.log(req.body);
-    return await this.authService.logout(req.user.id, 1);
+  async logout() {
+    return await this.authService.logout(1);
   }
 
   @UseGuards(JWTAuthGuard)

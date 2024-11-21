@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SessionModule } from 'src/session/session.module';
 import { SessionService } from 'src/session/session.service';
-import { UsersModule } from 'src/user/user.module';
+import { UserModule } from 'src/user/user.module';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { RefreshTokenController } from './refresh-token.controller';
 import { RefreshTokenService } from './refresh-token.service';
@@ -13,7 +13,7 @@ import { RefreshTokenService } from './refresh-token.service';
   providers: [RefreshTokenService, JwtService, SessionService],
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
-    forwardRef(() => UsersModule),
+    forwardRef(() => UserModule),
     forwardRef(() => SessionModule),
     // JwtModule.register({
     //   secret: JWT_SECRET,

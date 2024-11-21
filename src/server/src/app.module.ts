@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './user/user.module';
+import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { User } from './user/entities/user.entity';
@@ -12,12 +12,13 @@ import { ClientSession } from './session/entities/session.entity';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { CookieModule } from './cookie/cookie.module';
+import { ValidationModule } from './validation/validation.module';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
   imports: [
-    UsersModule,
+    UserModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'db',
@@ -47,6 +48,7 @@ import { CookieModule } from './cookie/cookie.module';
     RefreshTokenModule,
     SessionModule,
     CookieModule,
+    ValidationModule,
   ],
 })
 export class AppModule {}
