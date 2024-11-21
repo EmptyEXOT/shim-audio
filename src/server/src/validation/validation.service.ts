@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { validate } from 'class-validator';
 import { AuthService } from 'src/auth/auth.service';
 import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
@@ -11,24 +15,47 @@ export class ValidationService {
     private readonly authService: AuthService,
   ) {}
 
-  async validateDto<T extends object>(dto: T): Promise<ErrorMessages[]> {
-    const validationErrors = await validate(dto);
-    return validationErrors
+  async validateDto<T extends object>(
+    dto: T,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ): Promise<ErrorMessages[]> {
+    const rawErrors = await validate(dto);
+    const validationErrors = rawErrors
       .map((err) => Object.values(err.constraints))
       .flat() as ErrorMessages[];
+    if (isFinal && validationErrors.length) {
+      throw new BadRequestException(errors);
+    }
+    return errors.concat(validationErrors);
   }
 
-  validatePassword(password: string, errors: ErrorMessages[]): void {
+  validatePassword(
+    password: string,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ): ErrorMessages[] {
     if (!this.authService.isPasswordStrong(password)) {
       errors.push(ErrorMessages.PASSWORD_WEAK);
     }
+    if (isFinal) {
+      throw new BadRequestException(errors);
+    }
+    return errors;
   }
 
-  async checkUserExistence(email: string, errors: ErrorMessages[]) {
+  async checkUserExistence(
+    email: string,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ) {
     const existingUser = await this.userService.findOneByEmail(email);
     if (existingUser) {
       errors.push(ErrorMessages.EMAIL_EXISTS);
-      throw new ConflictException(errors);
+      if (isFinal) {
+        throw new ConflictException(errors);
+      }
     }
+    return errors;
   }
 }

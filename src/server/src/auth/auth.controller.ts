@@ -16,16 +16,15 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
-  ApiExtraModels,
   ApiOkResponse,
   ApiUnauthorizedResponse,
   OmitType,
 } from '@nestjs/swagger';
+import { RegisterValidationPipe } from 'src/auth/pipes/register-validation.pipe';
 import { CookieService } from 'src/cookie/cookie.service';
 import { ClientSession } from 'src/session/entities/session.entity';
 import { SessionService } from 'src/session/session.service';
 import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
-import { RegisterValidationPipe } from 'src/auth/pipes/register-validation.pipe';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';

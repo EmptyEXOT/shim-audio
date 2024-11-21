@@ -8,9 +8,9 @@ export class RegisterValidationPipe implements PipeTransform {
   constructor(private readonly validationService: ValidationService) {}
   async transform(value: any) {
     const dto = plainToClass(RegisterRequestDto, value);
-    const errors = await this.validationService.validateDto(dto);
-    this.validationService.validatePassword(dto.password, errors);
-    await this.validationService.checkUserExistence(dto.email, errors);
+    const errors = await this.validationService.validateDto(dto, [], false);
+    this.validationService.validatePassword(dto.password, errors, false);
+    await this.validationService.checkUserExistence(dto.email, errors, true);
     if (errors.length) throw new BadRequestException(errors);
     return dto;
   }
