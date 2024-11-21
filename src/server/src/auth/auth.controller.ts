@@ -12,6 +12,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -34,8 +35,9 @@ import { RegisterRequestDto } from './dto/Register.dto';
 import { ValidateResponseDto } from './dto/Validate.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RegisterConfirmationPipe } from './pipes/register-confirmation.pipe';
 import { AuthTokens } from './types/AuthTokens.type';
-import { JwtPayload } from './types/jwt-payload.interface';
+import { JwtRegisterEmailConfirmation } from './types/jwt-register-email-confirmation.interface';
 
 interface AuthenticatedRequest extends Request {
   user: Omit<User, 'password'>;
@@ -49,6 +51,7 @@ export class AuthController {
     private readonly mailService: MailerService,
     private readonly cookieService: CookieService,
     private readonly sessionService: SessionService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @ApiConflictResponse({
@@ -104,14 +107,17 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'Неверная ссылка',
   })
+  @UsePipes(RegisterConfirmationPipe)
   @Get('confirm/:token')
   async confirm(
     @Param('token') token: string,
   ): Promise<Omit<User, 'password'>> {
-    const { sub: userId } = await this.authService.verify<JwtPayload>(token);
+    const { sub: userId } =
+      this.jwtService.decode<JwtRegisterEmailConfirmation>(token);
     const candidate = await this.userService.findOne(userId);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...user } = await this.userService.confirm(candidate);
+    // TODO: редирект на профиль пользователя
     return user;
   }
 

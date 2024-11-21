@@ -15,6 +15,7 @@ import { UserService } from 'src/user/user.service';
 import { LoginResponseDto } from './dto/Login.dto';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtPayload } from './types/jwt-payload.interface';
+import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 
 @Injectable()
 export class AuthService {
@@ -104,7 +105,7 @@ export class AuthService {
 
   async verify<TokenPayload>(token: string): Promise<TokenPayload> {
     if (!token) {
-      throw new BadRequestException('Access token is required');
+      throw new BadRequestException(ErrorMessages.ACCESS_TOKEN_REQUIRED);
     }
     try {
       this.jwtService.verify(token, {
