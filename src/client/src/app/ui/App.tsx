@@ -14,7 +14,7 @@ export interface AppProps {
 
 export const App: FC<AppProps> = (props) => {
   const { data, isError, isLoading } = useValidateQuery({});
-  const { email, sessionId } = useAppSelector(authSelector);
+  const { email, sessionId, accessToken } = useAppSelector(authSelector);
   return (
     <div className='flex min-h-screen flex-col justify-center'>
       <Navbar>
@@ -38,7 +38,7 @@ export const App: FC<AppProps> = (props) => {
 
           <Navbar.Navigation>
             {isLoading && <Skeleton.Box height='30px' width='60px' />}
-            {data?.isValid && (
+            {(data?.isValid && accessToken && (
               <>
                 <Navbar.Link
                   className='bg-black dark:bg-white py-1.5 px-3'
@@ -50,8 +50,7 @@ export const App: FC<AppProps> = (props) => {
                 </Navbar.Link>
                 <LogoutButton sessionId={sessionId || 0} />
               </>
-            )}
-            {isError && (
+            )) || (
               <Navbar.Link
                 className='bg-black dark:bg-white py-1.5 px-3'
                 to='/login'

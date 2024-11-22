@@ -2,6 +2,8 @@ import { FC, useCallback } from 'react';
 import { Session as SessionInfo } from '../types/Session.interface';
 import { Button } from '@/shared/component/button/ui/Button';
 import { useRemoveSessionMutation } from '@/features/remove_session/api/removeSession.api';
+import { useAppSelector } from '@/shared/store/hooks/hooks';
+import { authSelector } from '@/features/auth/selectors/auth.selector';
 
 export interface SessionProps extends Omit<SessionInfo, 'id'> {
   sessionId: number;
@@ -10,6 +12,7 @@ export interface SessionProps extends Omit<SessionInfo, 'id'> {
 
 export const Session: FC<SessionProps> = (props) => {
   const [removeSession] = useRemoveSessionMutation();
+  const { sessionId } = useAppSelector(authSelector);
   const { refetch } = props;
   const onRemove = useCallback(async () => {
     try {
@@ -27,7 +30,9 @@ export const Session: FC<SessionProps> = (props) => {
         <h3>Last Active: {String(props.lastActive)}</h3>
         <h3>OS: {props.os}</h3>
       </div>
-      <Button onClick={onRemove}>Remove</Button>
+      {props.sessionId !== sessionId && (
+        <Button onClick={onRemove}>Remove</Button>
+      )}
     </div>
   );
 };

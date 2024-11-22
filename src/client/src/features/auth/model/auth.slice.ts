@@ -34,10 +34,6 @@ const authSlice = createSlice({
       state.email = null;
       state.sessionId = null;
       state.userId = null;
-      cookies.remove(COOKIE.ACCESS_TOKEN);
-      cookies.remove(COOKIE.EMAIL);
-      cookies.remove(COOKIE.SESSION_ID);
-      cookies.remove(COOKIE.USER_ID);
     },
   },
   extraReducers: (builder) => {
