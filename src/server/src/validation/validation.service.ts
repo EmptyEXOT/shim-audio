@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
@@ -48,7 +49,7 @@ export class ValidationService {
     return errors;
   }
 
-  async checkUserExistence(
+  async checkEmailBusy(
     email: string,
     errors: ErrorMessages[] = [],
     isFinal: boolean = true,
@@ -99,5 +100,20 @@ export class ValidationService {
       }
       return errors;
     }
+  }
+
+  async checkUserExists(
+    id: number,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ) {
+    const candidate = await this.userService.findOne(id);
+    if (!candidate) {
+      errors.push(ErrorMessages.USER_NOT_FOUND);
+      if (isFinal) {
+        throw new NotFoundException(errors);
+      }
+    }
+    return errors;
   }
 }

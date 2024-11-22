@@ -15,7 +15,11 @@ export class SessionService {
     private userService: UserService,
   ) {}
 
-  async create(user: User, userAgent: string, tokens: AuthTokens) {
+  async create(
+    user: Omit<User, 'password'>,
+    userAgent: string,
+    tokens: AuthTokens,
+  ) {
     const parser = new UAParser('user-agent');
     const res = parser.setUA(userAgent).getResult();
 

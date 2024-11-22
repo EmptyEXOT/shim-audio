@@ -14,6 +14,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // Возможно понадобится при ведении журнала.
     // const request = ctx.getRequest();
 
+    if (response.headersSent) {
+      return;
+    }
+
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let messages = ['Internal server error'];
 

@@ -38,10 +38,8 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RegisterConfirmationPipe } from './pipes/register-confirmation.pipe';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtRegisterEmailConfirmation } from './types/jwt-register-email-confirmation.interface';
-
-interface AuthenticatedRequest extends Request {
-  user: Omit<User, 'password'>;
-}
+import { LoginValidationPipe } from './pipes/login-validation.pipe';
+import { AuthenticatedRequest } from './types/AuthenticatedRequest.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -122,21 +120,23 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @UsePipes(LoginValidationPipe)
   @Post('login')
   async login(
     @Request() req: AuthenticatedRequest,
     @Headers('user-agent') userAgent: string,
     @Response({ passthrough: true }) response,
   ): Promise<LoginResponseDto> {
-    const user: User = await this.userService.findOne(req.user.id);
-    const tokens: AuthTokens = await this.authService.generateAuthTokens(user);
+    const tokens: AuthTokens = await this.authService.generateAuthTokens(
+      req.user,
+    );
     const session: ClientSession = await this.sessionService.create(
-      user,
+      req.user,
       userAgent,
       tokens,
     );
     this.cookieService.setRefreshToken(response, tokens.refreshToken);
-    return await this.authService.login(user, session, tokens);
+    return await this.authService.login(req.user, session, tokens);
   }
 
   @Post('refresh')

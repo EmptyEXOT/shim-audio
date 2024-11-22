@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
@@ -27,18 +28,20 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
-    console.log(email || 'nt');
-    const user = await this.userService.findOneByEmail(email);
-    if (user && compareSync(password, user.password)) {
+    const candidate = await this.userService.findOneByEmail(email);
+    if (!candidate) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
+    if (candidate && compareSync(password, candidate.password)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
+      const { password, ...result } = candidate;
       return result;
     }
     return null;
   }
 
   async login(
-    user: User,
+    user: Omit<User, 'password'>,
     session: ClientSession,
     tokens: AuthTokens,
   ): Promise<LoginResponseDto> {
