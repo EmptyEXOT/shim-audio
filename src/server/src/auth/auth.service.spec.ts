@@ -4,6 +4,7 @@ import { compareSync } from 'bcryptjs';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { User } from 'src/user/entities/user.entity';
+import { SessionService } from 'src/session/session.service';
 
 jest.mock('bcryptjs', () => ({
   compareSync: jest.fn(),
@@ -23,6 +24,10 @@ describe('AuthService', () => {
           useValue: {
             findOneByEmail: jest.fn(),
           },
+        },
+        {
+          provide: SessionService,
+          useValue: { findSession: jest.fn().mockResolvedValue(null) },
         },
       ],
     }).compile();
