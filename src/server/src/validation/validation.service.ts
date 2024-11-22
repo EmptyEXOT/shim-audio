@@ -145,6 +145,12 @@ export class ValidationService {
     errors: ErrorMessages[] = [],
     isFinal: boolean = true,
   ) {
+    if (!id) {
+      errors.push(ErrorMessages.SESSION_NOT_FOUND);
+      if (isFinal) {
+        throw new NotFoundException(errors);
+      }
+    }
     const candidate = await this.sessionService.findOne(id);
     if (!candidate) {
       errors.push(ErrorMessages.SESSION_NOT_FOUND);

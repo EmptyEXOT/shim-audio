@@ -7,7 +7,12 @@ import { SessionModule } from 'src/session/session.module';
 
 @Module({
   providers: [ValidationService],
-  imports: [UserModule, forwardRef(() => AuthModule), JwtModule, SessionModule],
+  imports: [
+    UserModule,
+    forwardRef(() => AuthModule),
+    JwtModule,
+    forwardRef(() => SessionModule),
+  ],
   exports: [ValidationService],
 })
 export class ValidationModule {}

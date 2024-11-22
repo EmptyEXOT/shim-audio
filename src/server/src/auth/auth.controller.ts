@@ -6,7 +6,6 @@ import {
   Headers,
   Param,
   Post,
-  Req,
   Request,
   Response,
   UnauthorizedException,
@@ -33,18 +32,18 @@ import { UserService } from 'src/user/user.service';
 import { ValidationService } from 'src/validation/validation.service';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/Login.dto';
+import { LogoutRequestDto } from './dto/Logout.dto';
 import { RefreshTokensResponseDto } from './dto/RefreshTokens.dto';
 import { RegisterRequestDto } from './dto/Register.dto';
 import { ValidateResponseDto } from './dto/Validate.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LoginValidationPipe } from './pipes/login-validation.pipe';
+import { LogoutValidationPipe } from './pipes/logout-validation.pipe';
 import { RegisterConfirmationPipe } from './pipes/register-confirmation.pipe';
 import { AuthenticatedRequest } from './types/AuthenticatedRequest.interface';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtRegisterEmailConfirmation } from './types/jwt-register-email-confirmation.interface';
-import { LogoutRequestDto } from './dto/Logout.dto';
-import { LogoutValidationPipe } from './pipes/logout-validation.pipe';
 
 @Controller('auth')
 export class AuthController {

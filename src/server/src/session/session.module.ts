@@ -5,6 +5,7 @@ import { ClientSession } from './entities/session.entity';
 import { SessionController } from './session.controller';
 import { SessionService } from './session.service';
 import { AuthModule } from 'src/auth/auth.module';
+import { ValidationModule } from 'src/validation/validation.module';
 
 @Module({
   controllers: [SessionController],
@@ -13,6 +14,7 @@ import { AuthModule } from 'src/auth/auth.module';
     TypeOrmModule.forFeature([ClientSession]),
     forwardRef(() => UserModule),
     forwardRef(() => AuthModule),
+    forwardRef(() => ValidationModule),
   ],
   exports: [TypeOrmModule, SessionService],
 })
