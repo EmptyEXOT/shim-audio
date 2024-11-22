@@ -165,7 +165,6 @@ export class AuthController {
     return result;
   }
 
-  // TODO: нужно создать сервис!
   @UseGuards(JWTAuthGuard)
   @UsePipes(LogoutValidationPipe)
   @Post('logout')
@@ -175,9 +174,16 @@ export class AuthController {
     @Response({ passthrough: true }) response,
   ) {
     const session = await this.sessionService.findOne(payload.sessionId);
-    this.validationService.checkSessionAccess(req.user.id, session);
+    if (req.user.id !== session.user.id) {
+      throw new UnauthorizedException(ErrorMessages.SESSION_NO_RIGHTS);
+    }
+    console.log(`User ID: ${req.user.id}, Session ID: ${payload.sessionId}`);
+    const result = await this.sessionService.remove(payload.sessionId);
+
+    // this.validationService.checkSessionAccess(req.user.id, session);
     this.cookieService.clearRefreshToken(response);
-    return await this.sessionService.remove(payload.sessionId);
+    console.log(`Session removed: ${result}`);
+    return result;
   }
 
   @UseGuards(JWTAuthGuard)

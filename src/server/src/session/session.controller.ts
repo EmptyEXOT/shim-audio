@@ -1,11 +1,13 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Req,
   Request,
   UseGuards,
@@ -41,7 +43,7 @@ export class SessionController {
       throw new ForbiddenException(ErrorMessages.SESSION_NO_RIGHTS);
     }
     await this.validationService.checkUserExists(id);
-    return this.sessionService.findAllByUserId(+id);
+    return this.sessionService.findAllByUserId(id);
   }
 
   @UseGuards(JWTAuthGuard)
@@ -85,5 +87,28 @@ export class SessionController {
     return {
       removedSessionId: id,
     };
+  }
+
+  @UseGuards(JWTAuthGuard)
+  @Delete('terminateOther/:id')
+  async terminateOther(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: () =>
+          new BadRequestException(ErrorMessages.TYPE_MUST_BE_A_NUMBER),
+      }),
+    )
+    id: number,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    const sessions = await this.sessionService.findAllByUserId(request.user.id);
+    const deleted = [];
+    sessions
+      .filter((session) => session.id !== id)
+      .forEach(async (session) => {
+        deleted.push(await this.sessionService.remove(session.id));
+      });
+    return deleted;
   }
 }
