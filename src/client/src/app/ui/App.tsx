@@ -1,5 +1,6 @@
 import { useValidateQuery } from '@/features/auth/api/auth.api';
 import { authSelector } from '@/features/auth/selectors/auth.selector';
+import { LogoutButton } from '@/features/logout/ui/LogoutButton';
 import { ThemeToggle } from '@/features/toggle_theme';
 import { Skeleton } from '@/shared/component/skeleton';
 import { useAppSelector } from '@/shared/store/hooks/hooks';
@@ -13,7 +14,7 @@ export interface AppProps {
 
 export const App: FC<AppProps> = (props) => {
   const { data, isError, isLoading } = useValidateQuery({});
-  const { email } = useAppSelector(authSelector);
+  const { email, sessionId } = useAppSelector(authSelector);
   return (
     <div className='flex min-h-screen flex-col justify-center'>
       <Navbar>
@@ -38,14 +39,17 @@ export const App: FC<AppProps> = (props) => {
           <Navbar.Navigation>
             {isLoading && <Skeleton.Box height='30px' width='60px' />}
             {data?.isValid && (
-              <Navbar.Link
-                className='bg-black dark:bg-white py-1.5 px-3'
-                to='/profile'
-              >
-                <p className='text-white dark:text-black'>
-                  {email} {data.userId}
-                </p>
-              </Navbar.Link>
+              <>
+                <Navbar.Link
+                  className='bg-black dark:bg-white py-1.5 px-3'
+                  to='/profile'
+                >
+                  <p className='text-white dark:text-black'>
+                    {email} {data.userId}
+                  </p>
+                </Navbar.Link>
+                <LogoutButton sessionId={sessionId || 0} />
+              </>
             )}
             {isError && (
               <Navbar.Link
