@@ -31,10 +31,6 @@ export class SessionService {
     return newSession;
   }
 
-  findAll() {
-    return `This action returns all session`;
-  }
-
   async findOne(id: number) {
     return await this.sessionRepository.findOne({
       where: { id },
@@ -55,10 +51,6 @@ export class SessionService {
     return await this.sessionRepository.find({
       where: { user: { id: user.id } },
     });
-  }
-
-  update(id: number) {
-    return `This action updates a #${id} session`;
   }
 
   async remove(id: number) {

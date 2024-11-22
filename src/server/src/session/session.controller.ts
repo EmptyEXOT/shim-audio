@@ -22,11 +22,6 @@ export class SessionController {
     return this.sessionService.findAllByUserId(+id);
   }
 
-  @Get()
-  findAll() {
-    return this.sessionService.findAll();
-  }
-
   @UseGuards(JWTAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {

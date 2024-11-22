@@ -5,8 +5,6 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { User } from './user/entities/user.entity';
-import { RefreshTokenModule } from './refresh-token/refresh-token.module';
-import { RefreshToken } from './refresh-token/entities/refresh-token.entity';
 import { SessionModule } from './session/session.module';
 import { ClientSession } from './session/entities/session.entity';
 import { ConfigModule } from '@nestjs/config';
@@ -26,7 +24,7 @@ import { ValidationModule } from './validation/validation.module';
       username: 'postgres',
       password: 'postgres',
       database: 'postgres',
-      entities: [User, RefreshToken, ClientSession],
+      entities: [User, ClientSession],
       synchronize: true,
     }),
     ConfigModule.forRoot({
@@ -45,7 +43,6 @@ import { ValidationModule } from './validation/validation.module';
       },
     }),
     AuthModule,
-    RefreshTokenModule,
     SessionModule,
     CookieModule,
     ValidationModule,
