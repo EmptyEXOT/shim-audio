@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,6 +10,8 @@ import {
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { validate } from 'class-validator';
 import { AuthService } from 'src/auth/auth.service';
+import { ClientSession } from 'src/session/entities/session.entity';
+import { SessionService } from 'src/session/session.service';
 import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 import { UserService } from 'src/user/user.service';
 
@@ -18,6 +21,7 @@ export class ValidationService {
     private readonly userService: UserService,
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
+    private readonly sessionService: SessionService,
   ) {}
 
   async validateDto<T extends object>(
@@ -131,6 +135,36 @@ export class ValidationService {
       errors.push(ErrorMessages.USER_NOT_FOUND);
       if (isFinal) {
         throw new NotFoundException(errors);
+      }
+    }
+    return errors;
+  }
+
+  async checkSessionExists(
+    id: number,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ) {
+    const candidate = await this.sessionService.findOne(id);
+    if (!candidate) {
+      errors.push(ErrorMessages.SESSION_NOT_FOUND);
+      if (isFinal) {
+        throw new NotFoundException(errors);
+      }
+    }
+    return errors;
+  }
+
+  async checkSessionAccess(
+    userId: number,
+    session: ClientSession,
+    errors: ErrorMessages[] = [],
+    isFinal: boolean = true,
+  ) {
+    if (session.user.id !== userId) {
+      errors.push(ErrorMessages.SESSION_NO_RIGHTS);
+      if (isFinal) {
+        throw new ForbiddenException(errors);
       }
     }
     return errors;

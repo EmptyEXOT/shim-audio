@@ -6,6 +6,7 @@ import {
   Headers,
   Param,
   Post,
+  Req,
   Request,
   Response,
   UnauthorizedException,
@@ -42,6 +43,8 @@ import { RegisterConfirmationPipe } from './pipes/register-confirmation.pipe';
 import { AuthenticatedRequest } from './types/AuthenticatedRequest.interface';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtRegisterEmailConfirmation } from './types/jwt-register-email-confirmation.interface';
+import { LogoutRequestDto } from './dto/Logout.dto';
+import { LogoutValidationPipe } from './pipes/logout-validation.pipe';
 
 @Controller('auth')
 export class AuthController {
@@ -165,9 +168,17 @@ export class AuthController {
 
   // TODO: нужно создать сервис!
   @UseGuards(JWTAuthGuard)
+  @UsePipes(LogoutValidationPipe)
   @Post('logout')
-  async logout() {
-    return await this.authService.logout(1);
+  async logout(
+    @Body() payload: LogoutRequestDto,
+    @Request() req: AuthenticatedRequest,
+    @Response({ passthrough: true }) response,
+  ) {
+    const session = await this.sessionService.findOne(payload.sessionId);
+    this.validationService.checkSessionAccess(req.user.id, session);
+    this.cookieService.clearRefreshToken(response);
+    return await this.sessionService.remove(payload.sessionId);
   }
 
   @UseGuards(JWTAuthGuard)
