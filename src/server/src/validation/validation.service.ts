@@ -100,6 +100,7 @@ export class ValidationService {
       }
       return errors;
     }
+    return errors;
   }
 
   async checkUserExists(

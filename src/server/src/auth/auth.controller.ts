@@ -110,6 +110,7 @@ export class AuthController {
   async confirm(
     @Param('token') token: string,
   ): Promise<Omit<User, 'password'>> {
+    console.log(token);
     const { sub: userId } =
       this.jwtService.decode<JwtRegisterEmailConfirmation>(token);
     const candidate = await this.userService.findOne(userId);
