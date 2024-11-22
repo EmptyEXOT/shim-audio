@@ -5,7 +5,7 @@ import { ValidationService } from 'src/validation/validation.service';
 export class RegisterConfirmationPipe implements PipeTransform<string> {
   constructor(private readonly validationService: ValidationService) {}
   async transform(token: string) {
-    const errors = this.validationService.validateToken(token);
+    const errors = this.validationService.validateToken(token, 'ACCESS_TOKEN');
 
     // Когда будет страница с ошибкой подтверждения, нужно будет заменить на это:
     // const errors = this.validationService.validateToken(token, [], false);

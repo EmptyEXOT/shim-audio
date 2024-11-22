@@ -64,13 +64,19 @@ export class ValidationService {
     return errors;
   }
 
-  validateToken(
+  validateToken<T extends 'ACCESS_TOKEN' | 'REFRESH_TOKEN' = 'ACCESS_TOKEN'>(
     token: string,
+    tokenType: T,
     errors: ErrorMessages[] = [],
     isFinal: boolean = true,
   ): ErrorMessages[] {
+    console.log('refresh', token);
     if (!token) {
-      errors.push(ErrorMessages.ACCESS_TOKEN_REQUIRED);
+      if (tokenType === 'ACCESS_TOKEN') {
+        errors.push(ErrorMessages.ACCESS_TOKEN_REQUIRED);
+      } else if (tokenType === 'REFRESH_TOKEN') {
+        errors.push(ErrorMessages.REFRESH_TOKEN_REQUIRED);
+      }
       if (isFinal) {
         throw new BadRequestException(errors);
       }
@@ -82,19 +88,31 @@ export class ValidationService {
       });
     } catch (e) {
       if (e instanceof TokenExpiredError) {
-        errors.push(ErrorMessages.ACCESS_TOKEN_EXPIRED);
+        if (tokenType === 'ACCESS_TOKEN') {
+          errors.push(ErrorMessages.ACCESS_TOKEN_EXPIRED);
+        } else if (tokenType === 'REFRESH_TOKEN') {
+          errors.push(ErrorMessages.REFRESH_TOKEN_EXPIRED);
+        }
         if (isFinal) {
           throw new UnauthorizedException(errors);
         }
         return errors;
       } else if (e instanceof JsonWebTokenError) {
-        errors.push(ErrorMessages.ACCESS_TOKEN_INVALID);
+        if (tokenType === 'ACCESS_TOKEN') {
+          errors.push(ErrorMessages.ACCESS_TOKEN_INVALID);
+        } else if (tokenType === 'REFRESH_TOKEN') {
+          errors.push(ErrorMessages.REFRESH_TOKEN_INVALID);
+        }
         if (isFinal) {
           throw new UnauthorizedException(errors);
         }
         return errors;
       }
-      errors.push(ErrorMessages.ACCESS_TOKEN_VERIFYING_ERROR);
+      if (tokenType === 'ACCESS_TOKEN') {
+        errors.push(ErrorMessages.ACCESS_TOKEN_VERIFYING_ERROR);
+      } else if (tokenType === 'REFRESH_TOKEN') {
+        errors.push(ErrorMessages.REFRESH_TOKEN_VERIFYING_ERROR);
+      }
       if (isFinal) {
         throw new InternalServerErrorException(errors);
       }

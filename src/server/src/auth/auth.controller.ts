@@ -4,11 +4,11 @@ import {
   Controller,
   Get,
   Headers,
-  HttpStatus,
   Param,
   Post,
   Request,
   Response,
+  UnauthorizedException,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -25,9 +25,11 @@ import { RegisterValidationPipe } from 'src/auth/pipes/register-validation.pipe'
 import { CookieService } from 'src/cookie/cookie.service';
 import { ClientSession } from 'src/session/entities/session.entity';
 import { SessionService } from 'src/session/session.service';
+import { Cookies } from 'src/shared/enums/cookies.enum';
 import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { ValidationService } from 'src/validation/validation.service';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/Login.dto';
 import { RefreshTokensResponseDto } from './dto/RefreshTokens.dto';
@@ -35,11 +37,11 @@ import { RegisterRequestDto } from './dto/Register.dto';
 import { ValidateResponseDto } from './dto/Validate.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { LoginValidationPipe } from './pipes/login-validation.pipe';
 import { RegisterConfirmationPipe } from './pipes/register-confirmation.pipe';
+import { AuthenticatedRequest } from './types/AuthenticatedRequest.interface';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtRegisterEmailConfirmation } from './types/jwt-register-email-confirmation.interface';
-import { LoginValidationPipe } from './pipes/login-validation.pipe';
-import { AuthenticatedRequest } from './types/AuthenticatedRequest.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -50,6 +52,7 @@ export class AuthController {
     private readonly cookieService: CookieService,
     private readonly sessionService: SessionService,
     private readonly jwtService: JwtService,
+    private readonly validationService: ValidationService,
   ) {}
 
   @ApiConflictResponse({
@@ -145,15 +148,14 @@ export class AuthController {
     @Request() req,
     @Response({ passthrough: true }) response,
   ): Promise<RefreshTokensResponseDto> {
-    const refreshToken = req.cookies['refresh_token'];
+    const refreshToken = req.cookies[Cookies.REFRESH_TOKEN];
     if (!refreshToken) {
-      return response
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: 'Refresh token not found' });
+      throw new UnauthorizedException(ErrorMessages.REFRESH_TOKEN_REQUIRED);
     }
+    this.validationService.validateToken(refreshToken, 'REFRESH_TOKEN');
 
     const { newRefreshToken, ...result } = await this.authService.refreshTokens(
-      refreshToken,
+      req.cookies[Cookies.REFRESH_TOKEN],
       +req.body.sessionId,
     );
 

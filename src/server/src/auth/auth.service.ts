@@ -1,22 +1,20 @@
 import {
-  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { compareSync } from 'bcryptjs';
 import { ClientSession } from 'src/session/entities/session.entity';
 import { SessionService } from 'src/session/session.service';
+import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { LoginResponseDto } from './dto/Login.dto';
 import { AuthTokens } from './types/AuthTokens.type';
 import { JwtPayload } from './types/jwt-payload.interface';
-import { ErrorMessages } from 'src/shared/enums/error-messages.enum';
 
 @Injectable()
 export class AuthService {
@@ -74,12 +72,6 @@ export class AuthService {
   }
 
   async refreshTokens(refreshToken: string, sessionId: number) {
-    const isValid = this.jwtService.verify(refreshToken, {
-      secret: process.env.JWT_SECRET,
-    });
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid Token');
-    }
     const info = this.jwtService.decode<JwtPayload>(refreshToken);
     const session = await this.sessionService.findOne(sessionId);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -104,25 +96,6 @@ export class AuthService {
   async logout(sessionId: number) {
     const session = await this.sessionService.findOne(sessionId);
     return session;
-  }
-
-  async verify<TokenPayload>(token: string): Promise<TokenPayload> {
-    if (!token) {
-      throw new BadRequestException(ErrorMessages.ACCESS_TOKEN_REQUIRED);
-    }
-    try {
-      this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      return this.jwtService.decode<TokenPayload>(token);
-    } catch (e) {
-      if (e instanceof JsonWebTokenError) {
-        throw new UnauthorizedException('Invalid token');
-      } else if (e instanceof TokenExpiredError) {
-        throw new UnauthorizedException('Token has expired');
-      }
-      throw new InternalServerErrorException('Error verifying token');
-    }
   }
 
   public isPasswordStrong(password: string): boolean {
